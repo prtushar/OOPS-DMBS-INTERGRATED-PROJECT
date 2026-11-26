@@ -1,0 +1,624 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Service Record</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: auto;
+        }
+
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #2563eb;
+        }
+
+        input[readonly] {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        select:disabled, input:disabled {
+            background: #f1f5f9;
+            color: #475569;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .save-btn {
+            background: #2563eb;
+            color: white;
+            flex: 1;
+        }
+
+        .cancel-btn {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message {
+            margin-top: 18px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="form-card">
+
+        <h1>Add Service Record</h1>
+        <p class="subtitle">Enter vehicle service details</p>
+
+        <form id="serviceForm">
+
+            <div class="form-group">
+                <label for="vehicleId">Select Vehicle</label>
+                <select id="vehicleId" required>
+                    <option value="">Loading vehicles...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="serviceDate">Service Date</label>
+                <input type="date" id="serviceDate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="serviceType">Service Type</label>
+                <select id="serviceType" required disabled>
+                    <option value="">Select a vehicle first</option>
+                    <option value="Free">Free</option>
+                    <option value="Paid">Paid</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="serviceNumber">Service Number</label>
+                <input type="number" id="serviceNumber"
+                    min="1" step="1"
+                    placeholder="Select a vehicle first"
+                    required disabled>
+
+                <p class="hint" id="numberHint">
+                    Select a vehicle to check its service history.
+                </p>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Service Description</label>
+                <textarea id="description"
+                    placeholder="Enter service details..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="serviceCost">Service Cost (₹)</label>
+                <input type="number" id="serviceCost"
+                    min="0" step="0.01" value="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Service Status</label>
+                <select id="status" required>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <div class="buttons">
+                <button type="submit" class="save-btn">
+                    Save Service Record
+                </button>
+
+                <button type="button" class="cancel-btn"
+                    onclick="window.location.href='/service-records.html'">
+                    Cancel
+                </button>
+            </div>
+
+            <p id="message" class="message"></p>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    let vehicles = [];
+    let hasServiceHistory = null;
+    let nextServiceNumber = null;
+    let nextServiceType = null;
+    let loadingNextService = false;
+    let selectionVersion = 0;
+
+    const vehicleSelect = document.getElementById("vehicleId");
+    const typeInput = document.getElementById("serviceType");
+    const numberInput = document.getElementById("serviceNumber");
+    const costInput = document.getElementById("serviceCost");
+    const numberHint = document.getElementById("numberHint");
+    const message = document.getElementById("message");
+    const serviceForm = document.getElementById("serviceForm");
+    const saveButton = serviceForm.querySelector(".save-btn");
+
+    // LOAD VEHICLES
+
+    async function loadData() {
+        try {
+            const response = await fetch("/api/vehicles");
+
+            if (!response.ok) {
+                throw new Error("Unable to load vehicles.");
+            }
+
+            vehicles = await response.json();
+
+            vehicleSelect.innerHTML =
+                '<option value="">Choose a vehicle</option>';
+
+            vehicles.forEach(vehicle => {
+                const option = document.createElement("option");
+
+                option.value = vehicle.id;
+                option.textContent =
+                    `${vehicle.registration_number} - ${vehicle.brand} ${vehicle.model}`;
+
+                vehicleSelect.appendChild(option);
+            });
+
+        } catch (error) {
+            console.error(error);
+
+            vehicleSelect.innerHTML =
+                '<option value="">Unable to load vehicles</option>';
+
+            showMessage(error.message, "error");
+        }
+    }
+
+    // RESET SERVICE DETAILS
+
+    function resetNextService() {
+        hasServiceHistory = null;
+        nextServiceNumber = null;
+        nextServiceType = null;
+
+        typeInput.value = "";
+        numberInput.value = "";
+
+        typeInput.disabled = true;
+        numberInput.disabled = true;
+
+        typeInput.innerHTML = `
+            <option value="">Select a vehicle first</option>
+            <option value="Free">Free</option>
+            <option value="Paid">Paid</option>
+        `;
+
+        numberInput.readOnly = false;
+        numberInput.placeholder = "Select a vehicle first";
+
+        costInput.value = "0";
+        costInput.readOnly = true;
+    }
+
+    // UPDATE COST BASED ON SERVICE TYPE
+
+    function updateCost() {
+        if (typeInput.value === "Free") {
+            costInput.value = "0";
+            costInput.readOnly = true;
+        } else if (typeInput.value === "Paid") {
+            costInput.readOnly = false;
+
+            if (Number(costInput.value) === 0) {
+                costInput.value = "";
+            }
+        } else {
+            costInput.value = "0";
+            costInput.readOnly = true;
+        }
+    }
+
+    // MANUAL MODE FOR VEHICLES WITHOUT SERVICE HISTORY
+
+    function enableManualMode() {
+        hasServiceHistory = false;
+        nextServiceNumber = null;
+        nextServiceType = null;
+
+        typeInput.disabled = false;
+        numberInput.disabled = false;
+        numberInput.readOnly = false;
+
+        typeInput.value = "";
+        numberInput.value = "1";
+
+        numberHint.textContent =
+            "No previous service records found. Choose Free/Paid and enter the service number manually.";
+
+        costInput.value = "0";
+        costInput.readOnly = true;
+    }
+
+    // AUTOMATIC MODE FOR VEHICLES WITH SERVICE HISTORY
+
+    function enableAutomaticMode(result) {
+        hasServiceHistory = true;
+
+        nextServiceNumber = Number(result.nextServiceNumber);
+        nextServiceType = result.nextServiceType;
+
+        typeInput.value = nextServiceType;
+        numberInput.value = nextServiceNumber;
+
+        typeInput.disabled = true;
+        numberInput.disabled = true;
+        numberInput.readOnly = true;
+
+        updateCost();
+
+        numberHint.textContent =
+            `Existing service history found. Next service is ${nextServiceNumber} (${nextServiceType}).`;
+    }
+
+    // GET SERVICE HISTORY FROM BACKEND
+
+    async function updateNextService() {
+        const vehicleId = Number(vehicleSelect.value);
+        const currentVersion = ++selectionVersion;
+
+        resetNextService();
+
+        if (!vehicleId) {
+            numberHint.textContent =
+                "Select a vehicle to check its service history.";
+            return;
+        }
+
+        loadingNextService = true;
+        vehicleSelect.disabled = true;
+
+        numberHint.textContent = "Checking service history...";
+
+        try {
+            const response = await fetch(
+                `/api/service-records/next-number/${vehicleId}`
+            );
+
+            if (!response.ok) {
+                throw new Error("Unable to identify service history.");
+            }
+
+            const result = await response.json();
+
+            if (
+                currentVersion !== selectionVersion ||
+                Number(vehicleSelect.value) !== vehicleId
+            ) {
+                return;
+            }
+
+            if (result.hasServiceHistory === false) {
+                enableManualMode();
+            } else if (result.hasServiceHistory === true) {
+                if (
+                    !Number.isInteger(Number(result.nextServiceNumber)) ||
+                    Number(result.nextServiceNumber) < 1 ||
+                    !["Free", "Paid"].includes(result.nextServiceType)
+                ) {
+                    throw new Error("Invalid next service details.");
+                }
+
+                enableAutomaticMode(result);
+            } else {
+                throw new Error(
+                    "Backend did not provide service history information."
+                );
+            }
+
+        } catch (error) {
+            console.error(error);
+
+            if (currentVersion === selectionVersion) {
+                resetNextService();
+
+                numberHint.textContent =
+                    "Could not retrieve service history.";
+
+                showMessage(error.message, "error");
+            }
+
+        } finally {
+            if (currentVersion === selectionVersion) {
+                loadingNextService = false;
+                vehicleSelect.disabled = false;
+            }
+        }
+    }
+
+    // VEHICLE SELECTION
+
+    vehicleSelect.addEventListener("change", async function() {
+        message.textContent = "";
+        message.className = "message";
+
+        await updateNextService();
+    });
+
+    // SERVICE TYPE SELECTION
+
+    typeInput.addEventListener("change", updateCost);
+
+    // DISPLAY MESSAGES
+
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = "message " + type;
+    }
+
+    // SUBMIT SERVICE RECORD
+
+    serviceForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        if (loadingNextService || hasServiceHistory === null) {
+            showMessage(
+                "Please wait until service history is checked.",
+                "error"
+            );
+            return;
+        }
+
+        const vehicleId = Number(vehicleSelect.value);
+        const serviceType = typeInput.value;
+        const serviceNumber = Number(numberInput.value);
+        const serviceCost = Number(costInput.value);
+        const serviceDate =
+            document.getElementById("serviceDate").value;
+
+        if (!vehicleId) {
+            showMessage("Please select a vehicle.", "error");
+            return;
+        }
+
+        if (!["Free", "Paid"].includes(serviceType)) {
+            showMessage("Please select a valid service type.", "error");
+            return;
+        }
+
+        if (
+            !Number.isInteger(serviceNumber) ||
+            serviceNumber < 1
+        ) {
+            showMessage("Enter a valid service number (1 or higher).", "error");
+            return;
+        }
+
+        if (!serviceDate) {
+            showMessage("Please select the service date.", "error");
+            return;
+        }
+
+        if (
+            serviceType === "Paid" &&
+            (!Number.isFinite(serviceCost) || serviceCost < 0)
+        ) {
+            showMessage("Enter a valid service cost.", "error");
+            return;
+        }
+
+        // VERIFY LATEST BACKEND HISTORY
+
+        saveButton.disabled = true;
+        saveButton.textContent = "Verifying...";
+
+        try {
+            const latestResponse = await fetch(
+                `/api/service-records/next-number/${vehicleId}`
+            );
+
+            if (!latestResponse.ok) {
+                throw new Error("Unable to verify service history.");
+            }
+
+            const latest = await latestResponse.json();
+
+            if (latest.hasServiceHistory === true) {
+                const latestNumber = Number(latest.nextServiceNumber);
+                const latestType = latest.nextServiceType;
+
+                if (
+                    hasServiceHistory !== true ||
+                    serviceNumber !== latestNumber ||
+                    serviceType !== latestType
+                ) {
+                    await updateNextService();
+
+                    showMessage(
+                        "Service history has changed. Check the updated details and submit again.",
+                        "error"
+                    );
+                    return;
+                }
+
+            } else if (latest.hasServiceHistory === false) {
+                if (hasServiceHistory !== false) {
+                    await updateNextService();
+
+                    showMessage(
+                        "Service history has changed. Check the updated details and submit again.",
+                        "error"
+                    );
+                    return;
+                }
+
+            } else {
+                throw new Error("Invalid service history response.");
+            }
+
+        } catch (error) {
+            showMessage(error.message, "error");
+            return;
+
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Service Record";
+        }
+
+        const record = {
+            vehicleId: vehicleId,
+            serviceDate: serviceDate,
+            serviceType: serviceType,
+            serviceNumber: serviceNumber,
+            description:
+                document.getElementById("description").value,
+            serviceCost:
+                serviceType === "Free" ? 0 : serviceCost,
+            status:
+                document.getElementById("status").value
+        };
+
+        try {
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving...";
+
+            const response = await fetch("/api/service-records", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(record)
+            });
+
+            const result = await response.text();
+
+            if (!response.ok) {
+                throw new Error(result);
+            }
+
+            showMessage(
+                "Service record added successfully!",
+                "success"
+            );
+
+            serviceForm.reset();
+            resetNextService();
+
+            numberHint.textContent =
+                "Select a vehicle to check its service history.";
+
+            await loadData();
+
+        } catch (error) {
+            showMessage(error.message, "error");
+
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Service Record";
+        }
+    });
+
+    // INITIAL LOAD
+
+    window.onload = loadData;
+
+</script>
+
+</body>
+</html>

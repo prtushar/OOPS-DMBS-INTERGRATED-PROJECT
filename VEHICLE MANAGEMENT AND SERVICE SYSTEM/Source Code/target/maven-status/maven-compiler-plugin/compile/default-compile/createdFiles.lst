@@ -1,0 +1,13 @@
+com\example\demo\DemoApplication.class
+com\example\demo\CustomerHistoryController.class
+com\example\demo\StaffAuthFilter.class
+com\example\demo\service\VehicleServiceImpl.class
+com\example\demo\PasswordHashGenerator.class
+com\example\demo\VehicleViewController.class
+com\example\demo\ServiceRecordController.class
+com\example\demo\model\Vehicle.class
+com\example\demo\InvoiceController.class
+com\example\demo\service\VehicleService.class
+com\example\demo\StaffController.class
+com\example\demo\VehicleController.class
+com\example\demo\CustomerController.class

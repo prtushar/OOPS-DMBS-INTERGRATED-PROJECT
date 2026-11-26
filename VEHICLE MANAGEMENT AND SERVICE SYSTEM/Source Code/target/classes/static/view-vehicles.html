@@ -1,0 +1,253 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Vehicles | Vehicle Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #0f172a;
+            color: white;
+            padding: 24px 8%;
+        }
+
+        header p {
+            color: #cbd5e1;
+            margin-top: 8px;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px #0000000d;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .count {
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        button, .add-link {
+            margin-right: 10px;
+            padding: 11px 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-size: 13px;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        .message {
+            padding: 20px 0;
+            color: #64748b;
+        }
+
+        .back {
+            display: inline-block;
+            margin-top: 22px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>🚘 Saved Vehicles</h1>
+        <p>View vehicle records stored in your database.</p>
+    </header>
+
+    <main>
+        <section class="panel">
+            <div class="topbar">
+                <div>
+                    <h2>Vehicle Records</h2>
+                    <p class="count" id="vehicleCount">Loading vehicles...</p>
+                </div>
+
+                <div>
+                    <button onclick="loadVehicles()">Refresh</button>
+                    <a class="add-link" href="/vehicles.html">+ Add Vehicle</a>
+                </div>
+            </div>
+
+            <p class="message" id="message" role="status"></p>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Registration Number</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Year</th>
+                            <th>Vehicle Type</th>
+                            <th>Customer Name</th>
+                            <th>Customer Contact</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="vehicleTable"></tbody>
+                </table>
+            </div>
+
+            <a class="back" href="/">← Back to Dashboard</a>
+        </section>
+    </main>
+
+    <script>
+        async function loadVehicles() {
+            const message = document.getElementById("message");
+            const table = document.getElementById("vehicleTable");
+            const count = document.getElementById("vehicleCount");
+
+            message.textContent = "Loading records...";
+            table.replaceChildren();
+            count.textContent = "Loading vehicles...";
+
+            try {
+                const response = await fetch("/api/vehicles");
+
+                if (!response.ok) {
+                    throw new Error("Server returned status " + response.status);
+                }
+
+                const vehicles = await response.json();
+
+                count.textContent = "Total vehicles: " + vehicles.length;
+                message.textContent = vehicles.length === 0
+                    ? "No vehicles have been added yet."
+                    : "";
+
+                vehicles.forEach(vehicle => {
+                    const row = document.createElement("tr");
+
+                    const values = [
+                        vehicle.id,
+                        vehicle.registration_number,
+                        vehicle.brand,
+                        vehicle.model,
+                        vehicle.manufacturing_year,
+                        vehicle.vehicle_type,
+                        vehicle.customer_name || "Not assigned",
+                        vehicle.customer_phone || "Not available"
+                    ];
+
+                    values.forEach(value => {
+                        const cell = document.createElement("td");
+                        cell.textContent = value ?? "";
+                        row.appendChild(cell);
+                    });
+
+                    const actionCell = document.createElement("td");
+
+                    const editButton = document.createElement("button");
+                    editButton.textContent = "Edit";
+
+                    editButton.addEventListener("click", function() {
+                        window.location.href =
+                            `/edit-vehicle.html?id=${vehicle.id}`;
+                    });
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.textContent = "Delete";
+
+                    deleteButton.addEventListener("click", async () => {
+                        if (!confirm(
+                            "Delete vehicle " + vehicle.registration_number + "?"
+                        )) {
+                            return;
+                        }
+
+                        try {
+                            const deleteResponse = await fetch(
+                                "/api/vehicles/" + vehicle.id,
+                                { method: "DELETE" }
+                            );
+
+                            if (!deleteResponse.ok) {
+                                throw new Error("Delete failed");
+                            }
+
+                            await loadVehicles();
+                        } catch (error) {
+                            alert("Could not delete vehicle. Please try again.");
+                        }
+                    });
+
+                    actionCell.appendChild(editButton);
+                    actionCell.appendChild(deleteButton);
+                    row.appendChild(actionCell);
+
+                    table.appendChild(row);
+                });
+
+            } catch (error) {
+                count.textContent = "Could not load vehicles";
+                message.textContent =
+                    "Please make sure the Spring Boot application is running, then refresh.";
+            }
+        }
+
+        loadVehicles();
+    </script>
+</body>
+</html>

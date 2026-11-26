@@ -1,0 +1,1154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billing | Vehicle Management System</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+header {
+    background: #0f172a;
+    color: white;
+    padding: 22px 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+header h2 {
+    font-size: 23px;
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+    background: #334155;
+    padding: 10px 17px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 1250px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.section {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.section h3 {
+    font-size: 19px;
+    margin-bottom: 20px;
+    color: #0f172a;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field.full {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #475569;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    background: white;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #2563eb;
+}
+
+input[readonly] {
+    background: #f8fafc;
+    color: #475569;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.detail {
+    background: #f8fafc;
+    padding: 13px;
+    border-radius: 7px;
+    border: 1px solid #e2e8f0;
+}
+
+.detail small {
+    display: block;
+    color: #64748b;
+    margin-bottom: 6px;
+    font-size: 12px;
+}
+
+.detail strong {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.price-note {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 5px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+th, td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+    font-size: 13px;
+}
+
+th {
+    background: #f8fafc;
+    color: #475569;
+}
+
+td input {
+    min-width: 75px;
+    padding: 8px;
+}
+
+.remove-btn {
+    border: none;
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 8px 11px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 16px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.primary {
+    background: #2563eb;
+    color: white;
+}
+
+.secondary {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.green {
+    background: #16a34a;
+    color: white;
+}
+
+.add-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.totals {
+    max-width: 430px;
+    margin-left: auto;
+    margin-top: 22px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    padding: 18px;
+}
+
+.total-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 0;
+    font-size: 14px;
+}
+
+.grand {
+    border-top: 1px solid #cbd5e1;
+    margin-top: 8px;
+    padding-top: 15px;
+    font-size: 19px;
+    font-weight: bold;
+    color: #0f172a;
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+}
+
+.status-message {
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@media(max-width: 650px) {
+    header {
+        padding: 18px;
+    }
+
+    .form-grid, .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section {
+        padding: 17px;
+    }
+
+    .container {
+        padding: 0 12px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>Vehicle Management System | Billing</h2>
+    <a href="/">← Dashboard</a>
+</header>
+
+<div class="container">
+
+    <!-- SERVICE SELECTION -->
+    <div class="section">
+        <h3>1. Select Service Record</h3>
+
+        <div class="form-grid">
+            <div class="field full">
+                <label>Select Service</label>
+                <select id="serviceSelect">
+                    <option value="">Loading available services...</option>
+                </select>
+            </div>
+        </div>
+
+        <p class="price-note">
+            Only service records without an existing invoice are displayed.
+        </p>
+    </div>
+
+    <!-- CUSTOMER DETAILS -->
+    <div class="section hidden" id="detailsSection">
+        <h3>2. Customer & Vehicle Details</h3>
+
+        <div class="details-grid">
+            <div class="detail">
+                <small>Customer Name</small>
+                <strong id="customerName">-</strong>
+            </div>
+
+            <div class="detail">
+                <small>Phone</small>
+                <strong id="customerPhone">-</strong>
+            </div>
+
+            <div class="detail">
+                <small>Email</small>
+                <strong id="customerEmail">-</strong>
+            </div>
+
+            <div class="detail">
+                <small>Address</small>
+                <strong id="customerAddress">-</strong>
+            </div>
+
+            <div class="detail">
+                <small>Vehicle</small>
+                <strong id="vehicleName">-</strong>
+            </div>
+
+            <div class="detail">
+                <small>Registration Number</small>
+                <strong id="registration">-</strong>
+            </div>
+
+            <div class="detail">
+                <small>Vehicle Type</small>
+                <strong id="vehicleType">-</strong>
+            </div>
+
+            <div class="detail">
+                <small>Service Details</small>
+                <strong id="serviceDetails">-</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- LABOUR -->
+    <div class="section hidden" id="labourSection">
+        <h3>3. Labour Charges</h3>
+
+        <div class="form-grid">
+            <div class="field">
+                <label>Service Category</label>
+                <select id="labourCategory">
+                    <option value="General Service">General Service</option>
+                    <option value="Full Service">Full Service</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Labour Charge (INR)</label>
+                <input type="number" id="labourPrice"
+                       min="0" step="0.01" value="0">
+                <span class="price-note" id="labourNote">
+                    Default price based on vehicle type.
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PARTS -->
+    <div class="section hidden" id="partsSection">
+        <h3>4. Parts & Additional Items</h3>
+
+        <div class="form-grid">
+            <div class="field">
+                <label>Select Part</label>
+                <select id="partSelect">
+                    <option value="">Choose a part</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Part Price (INR)</label>
+                <input type="number" id="partPrice"
+                       min="0" step="0.01" placeholder="Enter price">
+            </div>
+
+            <div class="field">
+                <label>Quantity</label>
+                <input type="number" id="partQuantity"
+                       min="1" step="1" value="1">
+            </div>
+
+            <div class="field">
+                <label>Custom Item Description (optional)</label>
+                <input type="text" id="customDescription"
+                       placeholder="Enter custom item name">
+            </div>
+        </div>
+
+        <div class="add-row">
+            <button class="primary" onclick="addSelectedPart()">
+                + Add Item
+            </button>
+
+            <button class="secondary" onclick="addCustomItem()">
+                + Add Custom Item
+            </button>
+        </div>
+
+        <div class="table-wrap" style="margin-top:22px">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Rate (INR)</th>
+                        <th>Amount (INR)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="itemsBody">
+                    <tr>
+                        <td colspan="5" style="text-align:center">
+                            No additional items added.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TOTAL -->
+    <div class="section hidden" id="totalSection">
+        <h3>5. Invoice Summary</h3>
+
+        <div class="form-grid">
+            <div class="field">
+                <label>Additional Charges (INR)</label>
+                <input type="number" id="additionalCharges"
+                       min="0" step="0.01" value="0">
+            </div>
+        </div>
+
+        <div class="totals">
+            <div class="total-line">
+                <span>Labour Charges</span>
+                <strong id="labourTotal">₹0.00</strong>
+            </div>
+
+            <div class="total-line">
+                <span>Parts & Items</span>
+                <strong id="partsTotal">₹0.00</strong>
+            </div>
+
+            <div class="total-line">
+                <span>Subtotal</span>
+                <strong id="subtotal">₹0.00</strong>
+            </div>
+
+            <div class="total-line">
+                <span>Additional Charges</span>
+                <strong id="additionalTotal">₹0.00</strong>
+            </div>
+
+            <div class="total-line grand">
+                <span>Grand Total</span>
+                <strong id="grandTotal">₹0.00</strong>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="green" id="generateBtn"
+                    onclick="generateInvoice()">
+                Generate Invoice
+            </button>
+
+            <button class="secondary" onclick="resetBilling()">
+                Reset
+            </button>
+        </div>
+
+        <p class="status-message" id="message"></p>
+    </div>
+
+    <!-- INVOICE HISTORY -->
+    <div class="section">
+        <h3>6. Invoice History</h3>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Invoice No.</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Vehicle</th>
+                        <th>Total (INR)</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+
+                <tbody id="historyBody">
+                    <tr>
+                        <td colspan="6" style="text-align:center">
+                            Loading invoices...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const API = "/api/billing";
+
+let selectedService = null;
+let invoiceItems = [];
+let availableServices = [];
+
+const labourPrices = {
+    Scooter: {
+        "General Service": 400,
+        "Full Service": 700
+    },
+    Bike: {
+        "General Service": 500,
+        "Full Service": 900
+    },
+    Car: {
+        "General Service": 1500,
+        "Full Service": 3000
+    }
+};
+
+const partsPrices = {
+    Scooter: {
+        "Air Filter": 180,
+        "Front Brake Pads": 250,
+        "Rear Brake Shoes": 220,
+        "Clutch Wire": 120,
+        "Brake Wire": 100,
+        "Accelerator Cable": 120,
+        "Spark Plug": 120,
+        "Engine Oil": 350,
+        "Oil Filter": 150,
+        "Headlight Bulb": 100,
+        "Indicator Bulb": 50,
+        "Battery": 1200,
+        "Front Tyre": 1200,
+        "Rear Tyre": 1500
+    },
+
+    Bike: {
+        "Air Filter": 200,
+        "Front Brake Pads": 300,
+        "Rear Brake Shoes": 250,
+        "Clutch Wire": 150,
+        "Brake Wire": 120,
+        "Accelerator Cable": 150,
+        "Spark Plug": 150,
+        "Engine Oil": 400,
+        "Oil Filter": 180,
+        "Headlight Bulb": 120,
+        "Indicator Bulb": 50,
+        "Battery": 1500,
+        "Chain Sprocket Kit": 900,
+        "Front Tyre": 1500,
+        "Rear Tyre": 1800
+    },
+
+    Car: {
+        "Air Filter": 450,
+        "Oil Filter": 350,
+        "Cabin Filter": 500,
+        "Front Brake Pads": 1500,
+        "Rear Brake Pads": 1300,
+        "Clutch Cable": 700,
+        "Brake Fluid": 350,
+        "Engine Oil (4L)": 2000,
+        "Spark Plug (Set)": 800,
+        "Battery": 5000,
+        "Wiper Blades (Pair)": 600,
+        "Coolant": 500,
+        "Headlight Bulb": 350,
+        "Tyre (Each)": 4000
+    }
+};
+
+const serviceSelect = document.getElementById("serviceSelect");
+
+function money(value) {
+    return Number(value || 0).toFixed(2);
+}
+
+function formatDate(value) {
+    if (!value) return "-";
+
+    const date = new Date(value);
+
+    if (isNaN(date.getTime())) return value;
+
+    return date.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        timeZone: "Asia/Kolkata"
+    });
+}
+
+async function loadAvailableServices() {
+    try {
+        const response = await fetch(API + "/available-services");
+
+        if (!response.ok) {
+            throw new Error("Could not load services.");
+        }
+
+        availableServices = await response.json();
+
+        serviceSelect.innerHTML =
+            '<option value="">Select a service record</option>';
+
+        availableServices.forEach(service => {
+            const option = document.createElement("option");
+
+            option.value = service.service_record_id;
+
+            option.textContent =
+                "#" + service.service_record_id + " | " +
+                service.registration_number + " | " +
+                service.brand + " " + service.model +
+                " | Service " + service.service_number;
+
+            serviceSelect.appendChild(option);
+        });
+
+        if (availableServices.length === 0) {
+            serviceSelect.innerHTML =
+                '<option value="">No services available for billing</option>';
+        }
+
+    } catch (error) {
+        serviceSelect.innerHTML =
+            '<option value="">Error loading services</option>';
+
+        showMessage(error.message, true);
+    }
+}
+
+serviceSelect.addEventListener("change", async function() {
+    const id = this.value;
+
+    if (!id) {
+        hideBillingSections();
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            API + "/service-records/" + id
+        );
+
+        if (!response.ok) {
+            throw new Error("Could not load selected service.");
+        }
+
+        selectedService = await response.json();
+
+        displayServiceDetails();
+        setupLabour();
+        setupParts();
+        invoiceItems = [];
+        renderItems();
+        calculateTotals();
+
+        document.getElementById("detailsSection").classList.remove("hidden");
+        document.getElementById("labourSection").classList.remove("hidden");
+        document.getElementById("partsSection").classList.remove("hidden");
+        document.getElementById("totalSection").classList.remove("hidden");
+
+        document.getElementById("message").textContent = "";
+
+    } catch (error) {
+        showMessage(error.message, true);
+    }
+});
+
+function hideBillingSections() {
+    [
+        "detailsSection",
+        "labourSection",
+        "partsSection",
+        "totalSection"
+    ].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
+    });
+
+    selectedService = null;
+    invoiceItems = [];
+}
+
+function displayServiceDetails() {
+    const s = selectedService;
+
+    setText("customerName", s.customer_name);
+    setText("customerPhone", s.phone || "N/A");
+    setText("customerEmail", s.email || "N/A");
+    setText("customerAddress", s.address || "N/A");
+
+    setText("vehicleName", s.brand + " " + s.model);
+    setText("registration", s.registration_number);
+    setText("vehicleType", s.vehicle_type);
+
+    setText(
+        "serviceDetails",
+        s.service_type + " - Service " + s.service_number +
+        " - " + formatDate(s.service_date)
+    );
+}
+
+function setText(id, value) {
+    document.getElementById(id).textContent = value || "N/A";
+}
+
+function setupLabour() {
+    const free = Number(selectedService.service_number) <= 3;
+
+    const category = document.getElementById("labourCategory");
+    const price = document.getElementById("labourPrice");
+    const note = document.getElementById("labourNote");
+
+    if (free) {
+        category.innerHTML =
+            '<option value="Free Service">Free Service</option>';
+
+        category.disabled = true;
+        price.value = "0";
+        price.readOnly = true;
+        note.textContent = "Free service labour charge is always zero.";
+    } else {
+        category.innerHTML = `
+            <option value="General Service">General Service</option>
+            <option value="Full Service">Full Service</option>
+        `;
+
+        category.disabled = false;
+        price.readOnly = false;
+        updateLabourPrice();
+    }
+}
+
+function updateLabourPrice() {
+    if (!selectedService) return;
+
+    const free = Number(selectedService.service_number) <= 3;
+
+    if (free) {
+        document.getElementById("labourPrice").value = "0";
+        calculateTotals();
+        return;
+    }
+
+    const type = selectedService.vehicle_type;
+    const category = document.getElementById("labourCategory").value;
+
+    const price = labourPrices[type]?.[category] ?? 0;
+
+    document.getElementById("labourPrice").value = price;
+
+    document.getElementById("labourNote").textContent =
+        "Default price for " + type + " - editable.";
+
+    calculateTotals();
+}
+
+document.getElementById("labourCategory")
+    .addEventListener("change", updateLabourPrice);
+
+document.getElementById("labourPrice")
+    .addEventListener("input", calculateTotals);
+
+function setupParts() {
+    const type = selectedService.vehicle_type;
+    const parts = partsPrices[type] || {};
+
+    const select = document.getElementById("partSelect");
+
+    select.innerHTML = '<option value="">Choose a part</option>';
+
+    Object.entries(parts).forEach(([name, price]) => {
+        const option = document.createElement("option");
+
+        option.value = name;
+        option.textContent = name + " - Rs. " + price;
+
+        select.appendChild(option);
+    });
+
+    document.getElementById("partPrice").value = "";
+    document.getElementById("partQuantity").value = 1;
+}
+
+document.getElementById("partSelect")
+    .addEventListener("change", function() {
+        if (!selectedService || !this.value) return;
+
+        const type = selectedService.vehicle_type;
+        const price = partsPrices[type]?.[this.value];
+
+        document.getElementById("partPrice").value =
+            price === undefined ? "" : price;
+    });
+
+function addSelectedPart() {
+    const description = document.getElementById("partSelect").value;
+
+    if (!description) {
+        alert("Please select a part.");
+        return;
+    }
+
+    addItemFromFields(description);
+}
+
+function addCustomItem() {
+    const description =
+        document.getElementById("customDescription").value.trim();
+
+    if (!description) {
+        alert("Please enter a custom item description.");
+        return;
+    }
+
+    addItemFromFields(description);
+
+    document.getElementById("customDescription").value = "";
+}
+
+function addItemFromFields(description) {
+    const price = Number(document.getElementById("partPrice").value);
+    const quantity = Number(document.getElementById("partQuantity").value);
+
+    if (!Number.isFinite(price) || price < 0) {
+        alert("Enter a valid non-negative price.");
+        return;
+    }
+
+    if (!Number.isInteger(quantity) || quantity <= 0) {
+        alert("Quantity must be a positive whole number.");
+        return;
+    }
+
+    invoiceItems.push({
+        description,
+        quantity,
+        unitPrice: price
+    });
+
+    renderItems();
+    calculateTotals();
+
+    document.getElementById("partSelect").value = "";
+    document.getElementById("partPrice").value = "";
+    document.getElementById("partQuantity").value = 1;
+}
+
+function renderItems() {
+    const body = document.getElementById("itemsBody");
+
+    body.innerHTML = "";
+
+    if (invoiceItems.length === 0) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align:center">
+                    No additional items added.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    invoiceItems.forEach((item, index) => {
+        const row = document.createElement("tr");
+
+        const description = document.createElement("td");
+        description.textContent = item.description;
+
+        const quantityCell = document.createElement("td");
+        const quantityInput = document.createElement("input");
+        quantityInput.type = "number";
+        quantityInput.min = "1";
+        quantityInput.step = "1";
+        quantityInput.value = item.quantity;
+
+        quantityInput.addEventListener("change", function() {
+            const value = Number(this.value);
+
+            if (!Number.isInteger(value) || value <= 0) {
+                alert("Quantity must be a positive whole number.");
+                this.value = item.quantity;
+                return;
+            }
+
+            item.quantity = value;
+            renderItems();
+            calculateTotals();
+        });
+
+        quantityCell.appendChild(quantityInput);
+
+        const rateCell = document.createElement("td");
+        const rateInput = document.createElement("input");
+        rateInput.type = "number";
+        rateInput.min = "0";
+        rateInput.step = "0.01";
+        rateInput.value = item.unitPrice;
+
+        rateInput.addEventListener("change", function() {
+            const value = Number(this.value);
+
+            if (!Number.isFinite(value) || value < 0) {
+                alert("Enter a valid non-negative price.");
+                this.value = item.unitPrice;
+                return;
+            }
+
+            item.unitPrice = value;
+            renderItems();
+            calculateTotals();
+        });
+
+        rateCell.appendChild(rateInput);
+
+        const amountCell = document.createElement("td");
+        amountCell.textContent =
+            "₹" + money(item.quantity * item.unitPrice);
+
+        const actionCell = document.createElement("td");
+        const remove = document.createElement("button");
+
+        remove.className = "remove-btn";
+        remove.textContent = "Remove";
+
+        remove.addEventListener("click", function() {
+            invoiceItems.splice(index, 1);
+            renderItems();
+            calculateTotals();
+        });
+
+        actionCell.appendChild(remove);
+
+        row.append(
+            description,
+            quantityCell,
+            rateCell,
+            amountCell,
+            actionCell
+        );
+
+        body.appendChild(row);
+    });
+}
+
+function calculateTotals() {
+    const labour = Math.max(
+        0,
+        Number(document.getElementById("labourPrice").value) || 0
+    );
+
+    const parts = invoiceItems.reduce((sum, item) => {
+        return sum + item.quantity * item.unitPrice;
+    }, 0);
+
+    const additional = Math.max(
+        0,
+        Number(document.getElementById("additionalCharges").value) || 0
+    );
+
+    const subtotal = labour + parts;
+    const grand = subtotal + additional;
+
+    setText("labourTotal", "₹" + money(labour));
+    setText("partsTotal", "₹" + money(parts));
+    setText("subtotal", "₹" + money(subtotal));
+    setText("additionalTotal", "₹" + money(additional));
+    setText("grandTotal", "₹" + money(grand));
+}
+
+document.getElementById("additionalCharges")
+    .addEventListener("input", calculateTotals);
+
+function showMessage(message, error = false) {
+    const element = document.getElementById("message");
+
+    element.textContent = message;
+    element.style.color = error ? "#dc2626" : "#15803d";
+}
+
+async function generateInvoice() {
+    if (!selectedService) {
+        alert("Please select a service record.");
+        return;
+    }
+
+    const button = document.getElementById("generateBtn");
+    button.disabled = true;
+    button.textContent = "Generating...";
+
+    const payload = {
+        serviceRecordId: selectedService.service_record_id,
+        labourCategory: document.getElementById("labourCategory").value,
+        labourPrice: Number(document.getElementById("labourPrice").value),
+        additionalCharges: Number(
+            document.getElementById("additionalCharges").value
+        ),
+        items: invoiceItems
+    };
+
+    try {
+        const response = await fetch(API + "/invoices", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Invoice generation failed.");
+        }
+
+        showMessage(
+            "Invoice " + result.invoiceNumber +
+            " generated successfully! Grand Total: ₹" +
+            money(result.grandTotal)
+        );
+
+        await loadInvoiceHistory();
+        await loadAvailableServices();
+
+        serviceSelect.value = "";
+        resetBilling(false);
+
+        const pdfWindow = window.open(
+            API + "/invoices/" + result.invoiceId + "/pdf",
+            "_blank"
+        );
+
+        if (!pdfWindow) {
+            showMessage(
+                "Invoice created. Use the invoice history PDF link to download it."
+            );
+        }
+
+    } catch (error) {
+        showMessage(error.message, true);
+    } finally {
+        button.disabled = false;
+        button.textContent = "Generate Invoice";
+    }
+}
+
+async function loadInvoiceHistory() {
+    const body = document.getElementById("historyBody");
+
+    try {
+        const response = await fetch(API + "/invoices");
+
+        if (!response.ok) {
+            throw new Error("Could not load invoice history.");
+        }
+
+        const invoices = await response.json();
+
+        body.innerHTML = "";
+
+        if (invoices.length === 0) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="6" style="text-align:center">
+                        No invoices generated yet.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        invoices.forEach(invoice => {
+            const row = document.createElement("tr");
+
+            const values = [
+                invoice.invoice_number,
+                formatDate(invoice.invoice_date),
+                invoice.customer_name,
+                invoice.vehicle_registration,
+                "₹" + money(invoice.grand_total)
+            ];
+
+            values.forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            const pdfCell = document.createElement("td");
+            const link = document.createElement("a");
+
+            link.href = API + "/invoices/" + invoice.id + "/pdf";
+            link.textContent = "Download PDF";
+            link.target = "_blank";
+            link.style.color = "#2563eb";
+            link.style.fontWeight = "bold";
+            link.style.textDecoration = "none";
+
+            pdfCell.appendChild(link);
+            row.appendChild(pdfCell);
+
+            body.appendChild(row);
+        });
+
+    } catch (error) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align:center;color:red">
+                    ${error.message}
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function resetBilling(clearSelection = true) {
+    invoiceItems = [];
+    renderItems();
+
+    document.getElementById("additionalCharges").value = 0;
+
+    if (clearSelection) {
+        serviceSelect.value = "";
+        hideBillingSections();
+    }
+
+    calculateTotals();
+}
+
+loadAvailableServices();
+loadInvoiceHistory();
+</script>
+
+</body>
+</html>

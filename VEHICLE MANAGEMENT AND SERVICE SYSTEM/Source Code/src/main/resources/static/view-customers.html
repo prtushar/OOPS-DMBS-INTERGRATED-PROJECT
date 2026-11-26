@@ -1,0 +1,270 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Customers | Vehicle Management System</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #0f172a;
+            color: white;
+            padding: 22px 6%;
+        }
+
+        header h1 { margin: 0; }
+        header p { color: #cbd5e1; margin-bottom: 0; }
+
+        main {
+            max-width: 1500px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 6px 20px #0f172a10;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1250px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        #status {
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            border: none;
+            padding: 9px 12px;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 3px;
+        }
+
+        .edit-btn { background: #2563eb; }
+        .delete-btn { background: #dc2626; }
+
+        @media (max-width: 600px) {
+            .panel { padding: 12px; }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Vehicle Management System</h1>
+        <p>Customer Management / View Customers</p>
+    </header>
+
+    <main>
+        <div class="topbar">
+            <div>
+                <h2>Customer Directory</h2>
+                <p>All registered customers and their vehicles from MySQL.</p>
+            </div>
+            <a class="button" href="customers.html">+ Add Customer</a>
+        </div>
+
+        <p id="status">Loading customers...</p>
+
+        <section class="panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Full Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Address</th>
+                        <th>Vehicle Name</th>
+                        <th>Vehicle Number</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="customerTable">
+                    <tr>
+                        <td colspan="9">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <p><a href="/">← Back to Dashboard</a></p>
+    </main>
+
+    <script>
+        async function loadCustomers() {
+            const table = document.getElementById("customerTable");
+            const status = document.getElementById("status");
+
+            try {
+                const response = await fetch("/api/customers");
+
+                if (!response.ok) {
+                    throw new Error("Could not load customers.");
+                }
+
+                const customers = await response.json();
+                table.replaceChildren();
+
+                if (customers.length === 0) {
+                    const row = document.createElement("tr");
+                    const cell = document.createElement("td");
+
+                    cell.colSpan = 9;
+                    cell.textContent = "No customers found.";
+
+                    row.appendChild(cell);
+                    table.appendChild(row);
+
+                } else {
+                    customers.forEach(customer => {
+                        const row = document.createElement("tr");
+
+                        [
+                            customer.id,
+                            customer.full_name,
+                            customer.phone,
+                            customer.email,
+                            customer.address,
+                            customer.vehicle_names || "No vehicle assigned",
+                            customer.vehicle_numbers || "No vehicle assigned",
+                            customer.created_at
+                        ].forEach(value => {
+                            const cell = document.createElement("td");
+                            cell.textContent = value ?? "—";
+                            row.appendChild(cell);
+                        });
+
+                        const actionCell = document.createElement("td");
+
+                        const editButton = document.createElement("button");
+                        editButton.textContent = "Edit";
+                        editButton.className = "action-btn edit-btn";
+                        editButton.onclick = () => editCustomer(customer);
+
+                        const deleteButton = document.createElement("button");
+                        deleteButton.textContent = "Delete";
+                        deleteButton.className = "action-btn delete-btn";
+                        deleteButton.onclick = () => deleteCustomer(customer);
+
+                        actionCell.appendChild(editButton);
+                        actionCell.appendChild(deleteButton);
+
+                        row.appendChild(actionCell);
+                        table.appendChild(row);
+                    });
+                }
+
+                status.textContent =
+                    "Total registered customers: " + customers.length;
+
+            } catch (error) {
+                status.textContent =
+                    "Could not load customers. Check that Spring Boot is running.";
+
+                table.replaceChildren();
+
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+
+                cell.colSpan = 9;
+                cell.textContent = error.message;
+
+                row.appendChild(cell);
+                table.appendChild(row);
+            }
+        }
+
+        // OPEN FULL-PAGE CUSTOMER EDIT FORM
+        function editCustomer(customer) {
+            window.location.href =
+                "/edit-customer.html?id=" + customer.id;
+        }
+
+        // DELETE CUSTOMER
+        async function deleteCustomer(customer) {
+            const confirmed = confirm(
+                `Delete customer ${customer.full_name}?\n\nTheir vehicles will remain in the system but will no longer be linked to this customer.`
+            );
+
+            if (!confirmed) return;
+
+            try {
+                const response = await fetch(
+                    `/api/customers/${customer.id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                const message = await response.text();
+
+                if (!response.ok) {
+                    alert(message);
+                    return;
+                }
+
+                alert(message);
+                loadCustomers();
+
+            } catch (error) {
+                alert("Could not delete customer. Check Spring Boot.");
+            }
+        }
+
+        loadCustomers();
+    </script>
+</body>
+</html>

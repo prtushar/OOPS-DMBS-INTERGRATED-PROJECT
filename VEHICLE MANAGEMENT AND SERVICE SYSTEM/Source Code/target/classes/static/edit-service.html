@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Service | Vehicle Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+
+        h1 {
+            margin-bottom: 8px;
+            font-size: 27px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #2563eb;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        input[readonly] {
+            background: #f1f5f9;
+            color: #475569;
+            cursor: not-allowed;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 6px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .save-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        button:hover {
+            opacity: 0.88;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        @media(max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Edit Service Record</h1>
+    <p class="subtitle">Update vehicle service information</p>
+
+    <form id="editServiceForm">
+
+        <div class="form-group">
+            <label for="vehicleId">Vehicle</label>
+            <input type="text" id="vehicleId" readonly>
+            <p class="hint">Vehicle cannot be changed after creating a service record.</p>
+        </div>
+
+        <div class="form-group">
+            <label for="serviceDate">Service Date</label>
+            <input type="date" id="serviceDate" required>
+        </div>
+
+        <div class="form-group">
+            <label for="serviceType">Service Type</label>
+            <input type="text" id="serviceType" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="serviceNumber">Service Number</label>
+            <input type="number" id="serviceNumber" readonly>
+        </div>
+
+        <div class="form-group">
+            <label for="serviceCost">Service Cost (₹)</label>
+            <input type="number" id="serviceCost"
+                   min="0" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description"
+                      placeholder="Enter service description"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" required>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+
+        <div class="buttons">
+            <button type="submit" class="save-btn">
+                Update Service
+            </button>
+
+            <button type="button" class="cancel-btn"
+                onclick="window.location.href='/service-records.html'">
+                Cancel
+            </button>
+        </div>
+
+        <p id="message"></p>
+
+    </form>
+
+</div>
+
+<script>
+
+    const params = new URLSearchParams(window.location.search);
+    const recordId = params.get("id");
+
+    const vehicleInput = document.getElementById("vehicleId");
+    const serviceTypeInput = document.getElementById("serviceType");
+    const serviceNumberInput = document.getElementById("serviceNumber");
+    const serviceCostInput = document.getElementById("serviceCost");
+    const message = document.getElementById("message");
+
+    let originalRecord = null;
+
+    async function loadData() {
+
+        try {
+
+            if (!recordId) {
+                throw new Error("Service record ID is missing.");
+            }
+
+            const [vehicleResponse, recordResponse] = await Promise.all([
+                fetch("/api/vehicles"),
+                fetch("/api/service-records")
+            ]);
+
+            if (!vehicleResponse.ok || !recordResponse.ok) {
+                throw new Error("Unable to load required data.");
+            }
+
+            const vehicles = await vehicleResponse.json();
+            const records = await recordResponse.json();
+
+            originalRecord = records.find(
+                record => String(record.id) === String(recordId)
+            );
+
+            if (!originalRecord) {
+                throw new Error("Service record not found.");
+            }
+
+            const vehicle = vehicles.find(
+                item => Number(item.id) === Number(originalRecord.vehicle_id)
+            );
+
+            if (!vehicle) {
+                throw new Error("Associated vehicle not found.");
+            }
+
+            vehicleInput.value =
+                `${vehicle.brand} ${vehicle.model} (${vehicle.registration_number})`;
+
+            serviceTypeInput.value = originalRecord.service_type;
+
+            serviceNumberInput.value = originalRecord.service_number;
+
+            document.getElementById("serviceDate").value =
+                String(originalRecord.service_date).substring(0, 10);
+
+            serviceCostInput.value = originalRecord.service_cost;
+
+            document.getElementById("description").value =
+                originalRecord.description || "";
+
+            document.getElementById("status").value =
+                originalRecord.status;
+
+            updateServiceRules();
+
+        } catch (error) {
+
+            console.error(error);
+
+            message.textContent = error.message;
+            message.className = "error";
+
+        }
+    }
+
+
+    // SERVICE COST RULES
+
+    function updateServiceRules() {
+
+        if (originalRecord.service_type === "Free") {
+
+            serviceCostInput.value = "0";
+            serviceCostInput.readOnly = true;
+
+        } else {
+
+            serviceCostInput.readOnly = false;
+
+        }
+    }
+
+
+    // UPDATE SERVICE RECORD
+
+    document.getElementById("editServiceForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            message.textContent = "";
+            message.className = "";
+
+            const serviceCost = Number(serviceCostInput.value);
+
+            if (serviceCost < 0 || !Number.isFinite(serviceCost)) {
+                message.textContent = "Please enter a valid service cost.";
+                message.className = "error";
+                return;
+            }
+
+            const updatedRecord = {
+
+                vehicleId: Number(originalRecord.vehicle_id),
+
+                serviceDate:
+                    document.getElementById("serviceDate").value,
+
+                serviceType: originalRecord.service_type,
+
+                serviceNumber: Number(originalRecord.service_number),
+
+                description:
+                    document.getElementById("description").value,
+
+                serviceCost:
+                    originalRecord.service_type === "Free" ? 0 : serviceCost,
+
+                status:
+                    document.getElementById("status").value
+
+            };
+
+            try {
+
+                const response = await fetch(
+                    `/api/service-records/${recordId}`,
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(updatedRecord)
+                    }
+                );
+
+                const result = await response.text();
+
+                if (!response.ok) {
+                    throw new Error(result);
+                }
+
+                message.textContent =
+                    "Service record updated successfully!";
+
+                message.className = "success";
+
+                setTimeout(() => {
+                    window.location.href = "/service-records.html";
+                }, 1200);
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.textContent = error.message;
+                message.className = "error";
+
+            }
+
+        });
+
+
+    window.onload = loadData;
+
+</script>
+
+</body>
+</html>

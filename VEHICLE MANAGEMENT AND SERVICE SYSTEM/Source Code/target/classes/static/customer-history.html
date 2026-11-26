@@ -1,0 +1,602 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service History | TUSHAR MOTOR WORKS</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #080d18;
+            color: #f8fafc;
+            min-height: 100vh;
+            padding: 30px 18px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .brand h1 {
+            color: #60a5fa;
+            font-size: 25px;
+        }
+
+        .brand p {
+            color: #94a3b8;
+            font-size: 11px;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+
+        .back-button {
+            text-decoration: none;
+            color: #93c5fd;
+            border: 1px solid #334155;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+
+        h2 {
+            font-size: 25px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: #111a2b;
+            border: 1px solid #263650;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 22px;
+        }
+
+        .card h3 {
+            color: #60a5fa;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-label {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .service-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .service-item {
+            background: #0b1424;
+            border: 1px solid #293a53;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .service-top {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .service-title {
+            font-weight: bold;
+            font-size: 16px;
+            color: #e2e8f0;
+        }
+
+        .status {
+            background: #1e3a5f;
+            color: #93c5fd;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 11px;
+        }
+
+        .service-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .empty {
+            color: #94a3b8;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .error {
+            color: #fca5a5;
+            text-align: center;
+            padding: 35px;
+        }
+
+        .amount {
+            color: #4ade80;
+        }
+
+        .pdf-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #293a53;
+        }
+
+        .pdf-button {
+            border: none;
+            border-radius: 7px;
+            padding: 11px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .pdf-button:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+        }
+
+        .download-button {
+            background: #2563eb;
+            color: white;
+        }
+
+        .view-button {
+            background: #164e63;
+            color: #a5f3fc;
+            border: 1px solid #0e7490;
+        }
+
+        .pdf-button:disabled {
+            opacity: 0.5;
+            cursor: wait;
+            transform: none;
+        }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 35px;
+        }
+
+        @media(max-width: 600px) {
+            header {
+                align-items: flex-start;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .pdf-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <header>
+        <div class="brand">
+            <h1>TUSHAR MOTOR WORKS</h1>
+            <p>YOUR RIDE. OUR RESPONSIBILITY.</p>
+        </div>
+
+        <a href="/customer-login.html" class="back-button">
+            ← New Search
+        </a>
+    </header>
+
+    <h2>Service History</h2>
+
+    <p class="subtitle">
+        Your registered vehicle and maintenance records.
+    </p>
+
+    <div id="content">
+        <div class="card">
+            <p class="empty">Loading service history...</p>
+        </div>
+    </div>
+
+    <footer>
+        © 2026 TUSHAR MOTOR WORKS. All Rights Reserved.
+    </footer>
+
+</div>
+
+<script>
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function(char) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[char];
+        });
+    }
+
+    function formatDate(value) {
+        if (!value) return "Not available";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return escapeHTML(value);
+        }
+
+        return date.toLocaleDateString("en-IN");
+    }
+
+    function formatAmount(value) {
+        return Number(value || 0).toLocaleString("en-IN", {
+            style: "currency",
+            currency: "INR"
+        });
+    }
+
+    const content = document.getElementById("content");
+
+    let customerData;
+
+    // REQUEST PDF FROM BACKEND
+    async function getServicePdf(serviceId) {
+
+        const response = await fetch("/api/customer-history/pdf", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                serviceRecordId: serviceId,
+                vehicleNumber: customerData.vehicle.registrationNumber,
+                fullName: customerData.customerName,
+                email: customerData.customerEmail
+            })
+        });
+
+        if (!response.ok) {
+
+            let message = "Unable to generate PDF.";
+
+            try {
+                const errorData = await response.json();
+                message = errorData.message || message;
+            } catch (e) {
+                // Keep default error message.
+            }
+
+            throw new Error(message);
+        }
+
+        return await response.blob();
+    }
+
+    // DOWNLOAD PDF
+    async function downloadServicePdf(serviceId, button) {
+
+        const originalText = button.innerText;
+
+        try {
+
+            button.disabled = true;
+            button.innerText = "Generating PDF...";
+
+            const blob = await getServicePdf(serviceId);
+
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = "TMW-Service-" + serviceId + ".pdf";
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+
+        } catch (error) {
+
+            alert(error.message);
+
+        } finally {
+
+            button.disabled = false;
+            button.innerText = originalText;
+        }
+    }
+
+    // VIEW PDF IN A NEW TAB
+    async function viewServicePdf(serviceId, button) {
+
+        const originalText = button.innerText;
+
+        try {
+
+            button.disabled = true;
+            button.innerText = "Opening PDF...";
+
+            // Open a blank tab immediately to avoid popup blocking.
+            const newTab = window.open("about:blank", "_blank");
+
+            if (!newTab) {
+                throw new Error("Please allow pop-ups for this website and try again.");
+            }
+
+            const blob = await getServicePdf(serviceId);
+
+            const url = URL.createObjectURL(blob);
+
+            newTab.location.href = url;
+
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+        } catch (error) {
+
+            alert(error.message);
+
+        } finally {
+
+            button.disabled = false;
+            button.innerText = originalText;
+        }
+    }
+
+    try {
+
+        const savedData = sessionStorage.getItem("tmwCustomerHistory");
+
+        if (!savedData) {
+            throw new Error("No search result found. Please search again.");
+        }
+
+        customerData = JSON.parse(savedData);
+
+        const vehicle = customerData.vehicle;
+        const services = customerData.serviceRecords || [];
+
+        if (!customerData.customerEmail) {
+            throw new Error("Customer email is missing. Please perform a new search.");
+        }
+
+        let html = `
+            <div class="card">
+                <h3>Customer Information</h3>
+                <div class="vehicle-grid">
+
+                    <div>
+                        <div class="detail-label">Customer Name</div>
+                        <div class="detail-value">
+                            ${escapeHTML(customerData.customerName)}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="detail-label">Registered Email</div>
+                        <div class="detail-value">
+                            ${escapeHTML(customerData.customerEmail)}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Vehicle Information</h3>
+
+                <div class="vehicle-grid">
+
+                    <div>
+                        <div class="detail-label">Registration Number</div>
+                        <div class="detail-value">
+                            ${escapeHTML(vehicle.registrationNumber)}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="detail-label">Brand</div>
+                        <div class="detail-value">
+                            ${escapeHTML(vehicle.brand)}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="detail-label">Model</div>
+                        <div class="detail-value">
+                            ${escapeHTML(vehicle.model)}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="detail-label">Manufacturing Year</div>
+                        <div class="detail-value">
+                            ${escapeHTML(vehicle.manufacturingYear)}
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="detail-label">Vehicle Type</div>
+                        <div class="detail-value">
+                            ${escapeHTML(vehicle.vehicleType)}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Service Records (${services.length})</h3>
+
+                <div class="service-list">
+        `;
+
+        if (services.length === 0) {
+
+            html += `
+                <p class="empty">
+                    No service records are available for this vehicle yet.
+                </p>
+            `;
+
+        } else {
+
+            services.forEach(service => {
+
+                const serviceId = Number(service.id);
+                const serviceNumber = Number(service.service_number);
+
+                if (!Number.isSafeInteger(serviceId) || serviceId <= 0) {
+                    return;
+                }
+
+                const isFreeService =
+                    serviceNumber >= 1 && serviceNumber <= 3;
+
+                html += `
+                    <div class="service-item">
+
+                        <div class="service-top">
+
+                            <div class="service-title">
+                                ${escapeHTML(service.service_type)}
+                                #${escapeHTML(service.service_number)}
+                            </div>
+
+                            <span class="status">
+                                ${escapeHTML(service.status)}
+                            </span>
+
+                        </div>
+
+                        <div class="service-details">
+
+                            <div>
+                                <div class="detail-label">Service Date</div>
+                                <div class="detail-value">
+                                    ${formatDate(service.service_date)}
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="detail-label">Service Cost</div>
+                                <div class="detail-value amount">
+                                    ${formatAmount(service.service_cost)}
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="detail-label">Description</div>
+                                <div class="detail-value">
+                                    ${escapeHTML(service.description || "Not available")}
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="pdf-actions">
+
+                            ${
+                                isFreeService
+                                ? `
+                                    <button
+                                        class="pdf-button download-button"
+                                        onclick="downloadServicePdf(${serviceId}, this)">
+                                        Download Free Service Receipt
+                                    </button>
+                                `
+                                : `
+                                    <button
+                                        class="pdf-button view-button"
+                                        onclick="viewServicePdf(${serviceId}, this)">
+                                        View Invoice
+                                    </button>
+
+                                    <button
+                                        class="pdf-button download-button"
+                                        onclick="downloadServicePdf(${serviceId}, this)">
+                                        Download Invoice PDF
+                                    </button>
+                                `
+                            }
+
+                        </div>
+
+                    </div>
+                `;
+            });
+        }
+
+        html += `
+                </div>
+            </div>
+        `;
+
+        content.innerHTML = html;
+
+    } catch (error) {
+
+        content.innerHTML = `
+            <div class="card error">
+                ${escapeHTML(error.message)}
+                <br><br>
+                <a href="/customer-login.html" class="back-button">
+                    Return to Search
+                </a>
+            </div>
+        `;
+    }
+
+</script>
+
+</body>
+</html>

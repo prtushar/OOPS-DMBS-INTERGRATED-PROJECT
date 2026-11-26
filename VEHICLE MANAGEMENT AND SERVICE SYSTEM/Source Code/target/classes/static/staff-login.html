@@ -1,0 +1,326 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login | Tushar Motor Works</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            color: #f8fafc;
+            background: #080d19;
+            overflow: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 380px;
+            height: 380px;
+            border-radius: 50%;
+            filter: blur(110px);
+            opacity: 0.35;
+            z-index: -1;
+        }
+
+        body::before {
+            background: #2563eb;
+            top: -130px;
+            left: -100px;
+        }
+
+        body::after {
+            background: #7c3aed;
+            bottom: -150px;
+            right: -100px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            padding: 42px 35px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 20px;
+            background: rgba(15, 23, 42, 0.88);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .brand h1 {
+            font-size: 25px;
+            letter-spacing: 2px;
+            margin-bottom: 9px;
+        }
+
+        .brand span {
+            color: #60a5fa;
+        }
+
+        .brand p {
+            color: #94a3b8;
+            font-size: 12px;
+            letter-spacing: 3px;
+        }
+
+        .heading {
+            font-size: 23px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: #cbd5e1;
+            margin-bottom: 9px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 9px;
+            border: 1px solid #334155;
+            background: #111c30;
+            color: white;
+            outline: none;
+            font-size: 14px;
+        }
+
+        input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 65px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: #60a5fa;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 7px;
+            border: none;
+            border-radius: 9px;
+            color: white;
+            background: linear-gradient(100deg, #2563eb, #7c3aed);
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            display: none;
+            margin-top: 17px;
+            padding: 11px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .error {
+            display: block;
+            color: #fecaca;
+            background: rgba(220, 38, 38, 0.15);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .success {
+            display: block;
+            color: #bbf7d0;
+            background: rgba(22, 163, 74, 0.15);
+            border: 1px solid rgba(22, 163, 74, 0.3);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 27px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            color: #60a5fa;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 35px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-card">
+
+        <div class="brand">
+            <h1>TUSHAR <span>MOTOR WORKS</span></h1>
+            <p>YOUR RIDE. OUR RESPONSIBILITY.</p>
+        </div>
+
+        <h2 class="heading">Staff Login</h2>
+        <p class="subtitle">Sign in to access the management dashboard.</p>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+                <label for="email">Staff Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your registered email"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+
+                <div class="password-wrapper">
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button
+                        type="button"
+                        class="toggle-password"
+                        id="togglePassword"
+                    >Show</button>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginButton">
+                Sign In
+            </button>
+
+            <div id="message" class="message" role="status"></div>
+
+        </form>
+
+        <a href="/" class="back-link">← Back to Home</a>
+
+    </div>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+        const loginButton = document.getElementById("loginButton");
+        const message = document.getElementById("message");
+
+        togglePassword.addEventListener("click", function () {
+            const isPassword = passwordInput.type === "password";
+
+            passwordInput.type = isPassword ? "text" : "password";
+            togglePassword.textContent = isPassword ? "Hide" : "Show";
+        });
+
+        loginForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            message.className = "message";
+            message.textContent = "";
+
+            loginButton.disabled = true;
+            loginButton.textContent = "Signing in...";
+
+            try {
+                const response = await fetch("/api/staff/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({
+                        email: document.getElementById("email").value.trim(),
+                        password: passwordInput.value
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.message || "Login failed.");
+                }
+
+                message.textContent = "Login successful. Redirecting...";
+                message.className = "message success";
+
+                window.location.href = result.redirect;
+
+            } catch (error) {
+                message.textContent = error.message || "Unable to connect to server.";
+                message.className = "message error";
+
+                loginButton.disabled = false;
+                loginButton.textContent = "Sign In";
+            }
+        });
+    </script>
+
+</body>
+</html>

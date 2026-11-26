@@ -1,0 +1,489 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Records | Vehicle Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1350px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #64748b;
+        }
+
+        .summary {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .summary h3 {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .summary h2 {
+            font-size: 30px;
+            color: #2563eb;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 10px 15px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .dashboard-btn {
+            background: #0f172a;
+            color: white;
+        }
+
+        .add-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .refresh-btn {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .table-container {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .table-container h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1100px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px;
+            color: #64748b;
+        }
+
+        /* Compact service type labels */
+
+        .free,
+        .paid,
+        .status {
+            display: inline-block;
+            width: fit-content;
+            padding: 12px 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .free {
+            color: #15803d;
+            background: #dcfce7;
+        }
+
+        .paid {
+            color: #6d28d9;
+            background: #ede9fe;
+        }
+
+        /* Status colours */
+
+        .status-pending {
+            color: #b91c1c;
+            background: #fee2e2;
+        }
+
+        .status-in-progress {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .status-completed {
+            color: #15803d;
+            background: #dcfce7;
+        }
+
+        .status-default {
+            color: #475569;
+            background: #e2e8f0;
+        }
+
+        .edit-btn {
+            background: #2563eb;
+            color: white;
+            margin-right: 5px;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+
+        <div>
+            <h1>Service Records</h1>
+            <p class="subtitle">Manage vehicle service history</p>
+        </div>
+
+        <div class="actions">
+
+            <button class="dashboard-btn"
+                onclick="window.location.href='/'">
+                ← Dashboard
+            </button>
+
+            <button class="refresh-btn" onclick="loadRecords()">
+                Refresh
+            </button>
+
+            <button class="add-btn"
+                onclick="window.location.href='/add-service.html'">
+                + Add Service
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="summary">
+        <h3>Total Service Records</h3>
+        <h2 id="totalRecords">0</h2>
+    </div>
+
+    <div class="table-container">
+
+        <h2>Service History</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Vehicle</th>
+                    <th>Customer</th>
+                    <th>Service Date</th>
+                    <th>Service Type</th>
+                    <th>Service No.</th>
+                    <th>Cost</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="serviceTableBody">
+                <tr>
+                    <td colspan="9" class="empty">
+                        Loading service records...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    // LOAD SERVICE RECORDS
+
+    async function loadRecords() {
+
+        const tableBody = document.getElementById("serviceTableBody");
+        const totalRecords = document.getElementById("totalRecords");
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="9" class="empty">
+                    Loading service records...
+                </td>
+            </tr>
+        `;
+
+        try {
+
+            const response = await fetch("/api/service-records");
+
+            if (!response.ok) {
+                throw new Error("Failed to load service records");
+            }
+
+            const records = await response.json();
+
+            totalRecords.textContent = records.length;
+
+            if (records.length === 0) {
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="empty">
+                            No service records found.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            tableBody.innerHTML = "";
+
+            records.forEach(record => {
+
+                const row = document.createElement("tr");
+
+                const id = document.createElement("td");
+                id.textContent = record.id;
+
+                const vehicle = document.createElement("td");
+                vehicle.textContent =
+                    `${record.brand} ${record.model} (${record.registration_number})`;
+
+                const customer = document.createElement("td");
+                customer.textContent = record.customer_name || "N/A";
+
+                const serviceDate = document.createElement("td");
+                serviceDate.textContent = record.service_date;
+
+                const serviceType = document.createElement("td");
+                serviceType.textContent = record.service_type;
+                serviceType.className =
+                    record.service_type === "Free" ? "free" : "paid";
+
+                const serviceNumber = document.createElement("td");
+                serviceNumber.textContent = record.service_number;
+
+                const cost = document.createElement("td");
+                cost.textContent =
+                    "₹" + Number(record.service_cost).toFixed(2);
+
+                const status = document.createElement("td");
+                status.textContent = record.status;
+
+                const statusValue = String(record.status || "")
+                    .trim()
+                    .toLowerCase();
+
+                if (statusValue === "pending") {
+                    status.className = "status status-pending";
+                } else if (
+                    statusValue === "in progress" ||
+                    statusValue === "in-progress"
+                ) {
+                    status.className = "status status-in-progress";
+                } else if (statusValue === "completed") {
+                    status.className = "status status-completed";
+                } else {
+                    status.className = "status status-default";
+                }
+
+                const action = document.createElement("td");
+
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.className = "edit-btn";
+
+                editButton.onclick = function() {
+                    window.location.href =
+                        `/edit-service.html?id=${record.id}`;
+                };
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.className = "delete-btn";
+
+                deleteButton.onclick = function() {
+                    deleteService(
+                        record.id,
+                        `${record.brand} ${record.model}`,
+                        record.service_number
+                    );
+                };
+
+                action.append(editButton, deleteButton);
+
+                row.append(
+                    id,
+                    vehicle,
+                    customer,
+                    serviceDate,
+                    serviceType,
+                    serviceNumber,
+                    cost,
+                    status,
+                    action
+                );
+
+                tableBody.appendChild(row);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            totalRecords.textContent = "0";
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="empty error">
+                        Unable to load service records.
+                        Please check whether the server is running.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+
+    // SOFT DELETE SERVICE RECORD
+
+    async function deleteService(id, vehicleName, serviceNumber) {
+
+        const confirmDelete = confirm(
+            "SOFT DELETE SERVICE RECORD\n\n" +
+            "Vehicle: " + vehicleName + "\n" +
+            "Service Number: " + serviceNumber + "\n\n" +
+            "This record will be hidden from the active Service History.\n\n" +
+            "IMPORTANT:\n" +
+            "- The record will NOT be permanently erased.\n" +
+            "- Its service number will remain reserved.\n" +
+            "- The next service sequence will not roll back.\n\n" +
+            "Do you want to continue?"
+        );
+
+        if (!confirmDelete) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                `/api/service-records/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+            const result = await response.text();
+
+            if (!response.ok) {
+                alert(result || "Unable to delete service record.");
+                return;
+            }
+
+            alert(
+                "Service record moved to deleted history successfully!\n\n" +
+                "Its service number remains reserved."
+            );
+
+            await loadRecords();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Unable to connect to the server.");
+
+        }
+    }
+
+
+    // LOAD RECORDS WHEN PAGE OPENS
+
+    window.onload = loadRecords;
+
+</script>
+
+</body>
+</html>

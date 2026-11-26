@@ -1,0 +1,298 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tushar Motor Works | Welcome</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            color: white;
+            background: #080e1b;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            width: 650px;
+            height: 650px;
+            background: #075985;
+            filter: blur(150px);
+            opacity: 0.35;
+            border-radius: 50%;
+            top: -250px;
+            left: -200px;
+            animation: floatOne 10s infinite alternate ease-in-out;
+            z-index: -1;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: #7c2d92;
+            filter: blur(160px);
+            opacity: 0.25;
+            border-radius: 50%;
+            bottom: -250px;
+            right: -150px;
+            animation: floatTwo 12s infinite alternate ease-in-out;
+            z-index: -1;
+        }
+
+        @keyframes floatOne {
+            from { transform: translate(0, 0); }
+            to { transform: translate(130px, 100px); }
+        }
+
+        @keyframes floatTwo {
+            from { transform: translate(0, 0); }
+            to { transform: translate(-100px, -100px); }
+        }
+
+        header {
+            padding: 28px 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #ffffff18;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .brand span {
+            color: #38bdf8;
+        }
+
+        .brand-tag {
+            color: #94a3b8;
+            font-size: 11px;
+            letter-spacing: 3px;
+            margin-top: 5px;
+        }
+
+        .top-label {
+            color: #7dd3fc;
+            font-size: 12px;
+            letter-spacing: 2px;
+            border: 1px solid #38bdf855;
+            padding: 9px 15px;
+            border-radius: 30px;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: auto;
+            padding: 85px 25px 55px;
+            text-align: center;
+        }
+
+        .welcome-label {
+            color: #38bdf8;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: clamp(38px, 7vw, 65px);
+            font-weight: 800;
+            letter-spacing: 2px;
+            line-height: 1.15;
+        }
+
+        h1 span {
+            color: #38bdf8;
+        }
+
+        .description {
+            max-width: 650px;
+            margin: 22px auto 0;
+            color: #aebdd0;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .divider {
+            width: 65px;
+            height: 4px;
+            background: #38bdf8;
+            border-radius: 10px;
+            margin: 30px auto 45px;
+        }
+
+        .choose-title {
+            font-size: 20px;
+            margin-bottom: 25px;
+        }
+
+        .login-cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 25px;
+            max-width: 780px;
+            margin: auto;
+        }
+
+        .login-card {
+            text-decoration: none;
+            color: white;
+            text-align: left;
+            padding: 32px;
+            border: 1px solid #ffffff20;
+            border-radius: 18px;
+            background: #ffffff0c;
+            backdrop-filter: blur(15px);
+            transition: 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-8px);
+            border-color: #38bdf8;
+            background: #ffffff16;
+            box-shadow: 0 15px 45px #00000055;
+        }
+
+        .icon {
+            font-size: 38px;
+            margin-bottom: 22px;
+        }
+
+        .login-card h2 {
+            font-size: 23px;
+            margin-bottom: 12px;
+        }
+
+        .login-card p {
+            color: #aebdd0;
+            font-size: 14px;
+            line-height: 1.7;
+            min-height: 48px;
+        }
+
+        .continue {
+            display: inline-block;
+            margin-top: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .customer .continue {
+            color: #5eead4;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+            font-size: 12px;
+            border-top: 1px solid #ffffff12;
+        }
+
+        @media (max-width: 650px) {
+            header {
+                padding: 22px 6%;
+            }
+
+            .brand {
+                font-size: 17px;
+            }
+
+            .top-label {
+                font-size: 9px;
+                padding: 7px 9px;
+            }
+
+            main {
+                padding-top: 65px;
+            }
+
+            .login-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .login-card {
+                padding: 27px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <div class="brand">TUSHAR <span>MOTOR WORKS</span></div>
+            <div class="brand-tag">TMW · AUTOMOTIVE SERVICES</div>
+        </div>
+
+        <div class="top-label">OFFICIAL PORTAL</div>
+    </header>
+
+    <main>
+
+        <div class="welcome-label">WELCOME TO TMW</div>
+
+        <h1>
+            YOUR RIDE.<br>
+            <span>OUR RESPONSIBILITY.</span>
+        </h1>
+
+        <p class="description">
+            From cars to bikes and scooters, we keep every
+            journey running smoothly with reliable service
+            and care you can trust.
+        </p>
+
+        <div class="divider"></div>
+
+        <h2 class="choose-title">Choose Your Portal</h2>
+
+        <section class="login-cards">
+
+            <a href="/staff-login.html" class="login-card">
+                <h2>Staff Login</h2>
+                <p>
+                    Access vehicle management, customer records,
+                    service history and billing operations.
+                </p>
+                <span class="continue">CONTINUE AS STAFF →</span>
+            </a>
+
+            <a href="/customer-login.html"
+               class="login-card customer">
+                <h2>Customer Login</h2>
+                <p>
+                    View your vehicles, check service history
+                    and download your invoices securely.
+                </p>
+                <span class="continue">CONTINUE AS CUSTOMER →</span>
+            </a>
+
+        </section>
+
+    </main>
+
+    <footer>
+        Tushar Motor Works | TMW © 2026
+    </footer>
+
+</body>
+</html>
